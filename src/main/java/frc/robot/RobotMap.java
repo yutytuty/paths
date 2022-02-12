@@ -6,7 +6,7 @@ public class RobotMap {
 
     }
 
-    public interface PMW {
+    public interface PWM {
 
     }
 
