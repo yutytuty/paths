@@ -4,88 +4,99 @@
 
 package frc.robot;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
+import com.spikes2212.command.drivetrains.TankDrivetrain;
+import com.spikes2212.command.drivetrains.commands.DriveArcadeWithPID;
+import com.spikes2212.command.drivetrains.commands.DriveTankWithPID;
+import com.spikes2212.control.PIDSettings;
+import com.spikes2212.dashboard.Namespace;
+import com.spikes2212.dashboard.RootNamespace;
+import com.spikes2212.path.OdometryHandler;
+import com.spikes2212.path.Paths;
+import com.spikes2212.path.PurePursuitController;
+import com.spikes2212.path.Waypoint;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-/**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
- * project.
- */
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
 public class Robot extends TimedRobot {
+    private List<Waypoint> path;
 
+    private final RootNamespace rootNamespace = new RootNamespace("paths");
+    Namespace PIDNamespace = rootNamespace.addChild("PID");
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
-  @Override
-  public void robotInit() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
-  }
+    private final Supplier<Double> kP = PIDNamespace.addConstantDouble("kP", 1);
+    private final Supplier<Double> kI = PIDNamespace.addConstantDouble("kI", 0);
+    private final Supplier<Double> kD = PIDNamespace.addConstantDouble("kD", 0);
+    private final Supplier<Double> tolerance = PIDNamespace.addConstantDouble("Tolerance", 0);
+    private final Supplier<Double> waitTime = PIDNamespace.addConstantDouble("Wait Time", 1);
+    private final PIDSettings settings = new PIDSettings(kP, kI, kD, tolerance, waitTime);
 
-  /**
-   * This function is called every robot packet, no matter the mode. Use this for items like
-   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-   * SmartDashboard integrated updating.
-   */
-  @Override
-  public void robotPeriodic() {
-    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-    // commands, running already-scheduled commands, removing finished or interrupted commands,
-    // and running subsystem periodic() methods.  This must be called from the robot's periodic
-    // block in order for anything in the Command-based framework to work.
-    CommandScheduler.getInstance().run();
-  }
+    private Drivetrain drivetrain;
+    private OdometryHandler odometryHandler;
+    private PurePursuitController purePursuitController;
 
-  /** This function is called once each time the robot enters Disabled mode. */
-  @Override
-  public void disabledInit() {}
+    @Override
+    public void robotInit() {
+        path = Paths.loadFromCSV("~/Desktop/yes.csv");
+        drivetrain = Drivetrain.getInstance();
+        odometryHandler = new OdometryHandler(drivetrain::getLeftTicks, drivetrain::getRightTicks, drivetrain::getAngle, 0, 0);
+        purePursuitController = new PurePursuitController(odometryHandler, path, )
+    }
 
-  @Override
-  public void disabledPeriodic() {}
+    @Override
+    public void robotPeriodic() {
+        CommandScheduler.getInstance().run();
+    }
 
-  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
-  @Override
-  public void autonomousInit() {
-  
-  }
+    @Override
+    public void disabledInit() {
+    }
 
-  /** This function is called periodically during autonomous. */
-  @Override
-  public void autonomousPeriodic() {}
+    @Override
+    public void disabledPeriodic() {
+    }
 
-  @Override
-  public void teleopInit() {
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-  }
+    @Override
+    public void autonomousInit() {
 
-  /** This function is called periodically during operator control. */
-  @Override
-  public void teleopPeriodic() {}
+    }
 
-  @Override
-  public void testInit() {
-    // Cancels all running commands at the start of test mode.
-    CommandScheduler.getInstance().cancelAll();
-  }
+    @Override
+    public void autonomousPeriodic() {
+    }
 
-  /** This function is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {}
+    @Override
+    public void teleopInit() {
 
-  /** This function is called once when the robot is first started up. */
-  @Override
-  public void simulationInit() {}
+    }
 
-  /** This function is called periodically whilst in simulation. */
-  @Override
-  public void simulationPeriodic() {}
+    @Override
+    public void teleopPeriodic() {
+    }
+
+    @Override
+    public void testInit() {
+        CommandScheduler.getInstance().cancelAll();
+    }
+
+    @Override
+    public void testPeriodic() {
+    }
+
+    @Override
+    public void simulationInit() {
+    }
+
+    @Override
+    public void simulationPeriodic() {
+    }
 }
